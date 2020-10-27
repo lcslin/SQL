@@ -1,0 +1,42 @@
+-- 出口速查 SQL
+select *from industry_group;
+CREATE TABLE @industry_group
+(
+    nameLv1 varchar(200),
+    nameLv2 varchar(200),
+    hscode VARCHAR(11),
+)
+
+DECLARE @hscode VARCHAR(500);
+DECLARE @NameLv1 VARCHAR(100);
+DECLARE @NameLv2 VARCHAR(100);
+
+
+SELECT @hscode = [Hscode], @NameLv1 = NameLv1,  @NameLv2 = NameLv2 
+  FROM [2018HN0029_2018taitra_comitrade].[dbo].[Comm_IndustryCategory]
+  where namelv2 = '塑膠、橡膠及其製品';
+select @NameLv1, @NameLv2, value as hscode  from string_split(@hscode, ',') ;
+
+select *from #industry_group;
+SELECT 
+  @NameLv1, @NameLv2, sum(value)
+  FROM [2018HN0029_2018taitra_mof_export].[dbo].[Comm_Mof_Export_2019]
+  where    
+substring(hscode11,1,2) in 
+    ( select value from string_split(@hscode, ',') ) OR
+substring(hscode11,1,4) in 
+    ( select value from string_split(@hscode, ',') ) OR
+substring(hscode11,1,6) in 
+    ( select value from string_split(@hscode, ',') ) 
+
+
+select * 
+FROM [2018HN0029_2018taitra_comitrade].[dbo].[Comm_IndustryCategory]
+where sn IN
+(126 ,134, 136)
+
+
+
+
+
+
