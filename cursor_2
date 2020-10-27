@@ -1,0 +1,74 @@
+DECLARE @sn varchar(10)
+DECLARE @nameLv1 varchar(200)
+DECLARE @nameLv2 varchar(200)
+DECLARE @hscode VARCHAR(200)
+
+declare @industry_group as table
+(
+    nameLv1 varchar(200),
+    nameLv2 varchar(200),
+    totalVal float
+)
+
+declare industry_cur cursor for 
+    select top 2
+    SN, nameLv1, nameLv2, hscode
+FROM [2018HN0029_2018taitra_comitrade].[dbo].[Comm_IndustryCategory]
+open industry_cur
+fetch next from industry_cur into @sn, @nameLv1, @nameLv2, @hscode
+while(@@fetch_status != -1)
+begin
+    insert into @industry_group
+    SELECT
+        @NameLv1 as nameLv1, @NameLv2 as nameLv2, sum(value) as TotalVal  
+    FROM [2018HN0029_2018taitra_mof_export].[dbo].[Comm_Mof_Export_2019]
+    where    
+    substring(hscode11,1,2) in 
+    ( select value from string_split(@hscode, ',') ) OR
+    substring(hscode11,1,4) in 
+    ( select value from string_split(@hscode, ',') ) OR
+    substring(hscode11,1,6) in 
+    ( select value    from string_split(@hscode, ',') )
+
+    fetch next from industry_cur into @sn, @nameLv1, @nameLv2, @hscode
+end
+close industry_cur
+deallocate industry_cur
+select * from @industry_group;
+
+
+
+
+
+
+DECLARE @sn varchar(10)
+DECLARE @nameLv1 varchar(200)
+DECLARE @nameLv2 varchar(200)
+DECLARE @hscode VARCHAR(200)
+
+declare @industry_group as table
+(
+    sn varchar(5),
+    hscode varchar(11)
+)
+
+declare industry_cur cursor for 
+    select 
+    SN, nameLv1, nameLv2, hscode
+FROM [2018HN0029_2018taitra_comitrade].[dbo].[Comm_IndustryCategory]
+open industry_cur
+fetch next from industry_cur into @sn, @nameLv1, @nameLv2, @hscode
+while(@@fetch_status != -1)
+begin
+    insert into @industry_group
+    SELECT
+        @sn, value as hscode
+    FROM string_split(@hscode,',')
+    
+    fetch next from industry_cur into @sn, @nameLv1, @nameLv2, @hscode
+end
+close industry_cur
+deallocate industry_cur
+select len(hscode), count(*) from @industry_group group by len(hscode)
+
+select * from @industry_group where len(hscode) = 3;
